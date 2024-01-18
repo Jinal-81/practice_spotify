@@ -1,24 +1,27 @@
 from django.contrib.auth import get_user_model
-from rest_framework import status
-from rest_framework.decorators import action
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin
-from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet
+from django.views.generic import ListView
+from rest_framework import generics
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .serializers import UserSerializer
+from .serializers import RegisterSerializer, MyTokenObtainPairSerializer, UserSerializer
 
 User = get_user_model()
 
 
-class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
-    serializer_class = UserSerializer
+class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
-    lookup_field = "username"
+    permission_classes = (AllowAny,)
+    serializer_class = RegisterSerializer
 
-    def get_queryset(self, *args, **kwargs):
-        return self.queryset.filter(id=self.request.user.id)
 
-    @action(detail=False, methods=["GET"])
-    def me(self, request):
-        serializer = UserSerializer(request.user, context={"request": request})
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
+class MyObtainTokenPairView(TokenObtainPairView):
+    permission_classes = (AllowAny,)
+    serializer_class = MyTokenObtainPairSerializer
+
+
+class UserListView(ListAPIView):
+    queryset = User.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserSerializer
