@@ -11,7 +11,7 @@ User = get_user_model()
 
 
 class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
+    queryset = User.objects.none()
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
 
@@ -22,6 +22,5 @@ class MyObtainTokenPairView(TokenObtainPairView):
 
 
 class UserListView(ListAPIView):
-    queryset = User.objects.all()
-    permission_classes = (IsAuthenticated,)
+    queryset = User.objects.filter(is_active=True)
     serializer_class = UserSerializer

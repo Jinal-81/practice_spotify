@@ -3,9 +3,9 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.validators import RegexValidator
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from user.api.constants import PASSWORD_NOT_MATCH_ERROR_MSG, FIRST_NAME_CHAR_ONLY_ERROR_MSG, LAST_NAME_CHAR_ONLY_ERROR_MSG, \
-    REGEX_FOR_CHAR_ONLY
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+from user.api.constants import AuthConstantsMessages
 
 User = get_user_model()
 
@@ -16,7 +16,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('username', 'email', 'first_name', 'last_name')
 
 
-class RegisterSerializer(serializers.ModelSerializer):
+class RegisterSerializer(UserSerializer):
     email = serializers.EmailField(
         required=True,
         validators=[UniqueValidator(queryset=User.objects.all())], max_length=30
@@ -26,14 +26,14 @@ class RegisterSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(write_only=True, required=True)
     first_name = serializers.CharField(
         validators=[RegexValidator(
-            regex=REGEX_FOR_CHAR_ONLY,
-            message=FIRST_NAME_CHAR_ONLY_ERROR_MSG
+            regex=AuthConstantsMessages.REGEX_FOR_CHAR_ONLY,
+            message=AuthConstantsMessages.FIRST_NAME_CHAR_ONLY_ERROR_MESSAGE
         )]
     )
     last_name = serializers.CharField(
         validators=[RegexValidator(
-            regex=REGEX_FOR_CHAR_ONLY,
-            message=LAST_NAME_CHAR_ONLY_ERROR_MSG
+            regex=AuthConstantsMessages.REGEX_FOR_CHAR_ONLY,
+            message=AuthConstantsMessages.LAST_NAME_CHAR_ONLY_ERROR_MESSAGE
         )]
     )
 
@@ -45,19 +45,16 @@ class RegisterSerializer(serializers.ModelSerializer):
             'last_name': {'required': True}
         }
 
-    def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError({"password": PASSWORD_NOT_MATCH_ERROR_MSG})
+    def validate_password(self, attrs):
+        import pdb; pdb.set_trace()
+        if attrs != self.initial_data.get('password2'):
+            raise serializers.ValidationError(AuthConstantsMessages.PASSWORD_DOES_NOT_MATCH_ERROR_MESSAGE)
 
         return attrs
 
     def create(self, validated_data):
-        user = User.objects.create(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name']
-        )
+        validated_data = validated_data.pop('password2')
+        user = User.objects.create(**validated_data)
 
         user.set_password(validated_data['password'])
         user.save()
