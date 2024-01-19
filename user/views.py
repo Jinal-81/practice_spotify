@@ -16,6 +16,10 @@ class SignupView(TemplateView):
     template_name = 'signup.html'
 
 
+class LoginView(TemplateView):
+    template_name = 'login.html'
+
+
 class UserDetailView(LoginRequiredMixin, DetailView):
 
     model = User
