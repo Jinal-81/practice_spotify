@@ -1,3 +1,10 @@
+var urls = {
+   login_url: '/user/login/',
+   dashboard_url: '/user/dashboard/',
+   register_api_url: '/api/v1/register/',
+   login_api_url: '/api/v1/login/',
+}
+
 function ajaxPostCallRequest(url, data, callbackSuccess=null, callbackFailure=null){
     $.ajax({
         url: url,
@@ -13,9 +20,9 @@ function ajaxPostCallRequest(url, data, callbackSuccess=null, callbackFailure=nu
                 callbackSuccess(data);
             }
         },
-        error: function (data){
+        error: function (jqXhr, textStatus, errorThrown){
             if (callbackFailure){
-                callbackFailure(data);
+                callbackFailure(jqXhr, textStatus, errorThrown);
             }
         }
     })
@@ -37,7 +44,7 @@ $(document).ready(function (){
                     toastr.error(m.message)
                 }
             });
-           window.location.href = current_url + '/user/login/';
+           window.location.href = current_url + urls.login_url;
         }
 
         function failureRegistrationThread(data){
@@ -45,32 +52,20 @@ $(document).ready(function (){
             var current_form = $('#sign_form_id')[0]
             if (data.status==400 && data.responseJSON) {
                 $.each(data_response, function( v, k ) {
-                        debugger
                         var field = $(current_form).find('#'+v+'_id');
                         field.addClass('inputTxtError').before('<div class="error">'+k+'</div>');
                 });
         }
         }
 
-      var formData = {
-      username: $("#username_id").val(),
-      email: $("#email_id").val(),
-      first_name: $("#first_name_id").val(),
-      last_name: $('#last_name_id').val(),
-      password: $("#password_id").val(),
-      password2: $('#confirm_password_id').val(),
-    };
-    ajaxPostCallRequest(current_url + '/api/v1/register/', formData, successRegistrationThread, failureRegistrationThread)
+    var formData = $('#sign_form_id').serializeArray();
+    ajaxPostCallRequest(current_url + urls.register_api_url, formData, successRegistrationThread, failureRegistrationThread)
     });
-});
 
-// user login
-$(document).ready(function (){
     // id of the form for the submit
     $('#login_form_id').submit(function (event){
       event.preventDefault(); // avoid to execute the actual submit of the form.
       var current_url = window.location.origin;
-
       function successLoginThread(data){
            console.log(data)
            window.localStorage.setItem('refreshToken', data['refresh']);
@@ -86,9 +81,8 @@ $(document).ready(function (){
             var token = window.localStorage.getItem('accessToken');
             var payload = JSON.parse(atob(token.split('.')[1]));
             var username = payload.username;
-           window.location.href = current_url + '/user/dashboard/';
+           window.location.href = current_url + urls.dashboard_url;
            event.preventDefault(); // avoid to execute the actual submit of the form.
-           document.getElementById('username').innerText = username;
         }
 
         function failureLoginThread(data){
@@ -102,16 +96,10 @@ $(document).ready(function (){
         }
         }
 
-      var formData = {
-      username: $("#username_id").val(),
-      password: $("#password_id").val(),
-    };
-    ajaxPostCallRequest(current_url + '/api/v1/login/', formData, successLoginThread, failureLoginThread)
+      var formData = $('#login_form_id').serializeArray();
+    ajaxPostCallRequest(current_url + urls.login_api_url, formData, successLoginThread, failureLoginThread)
     });
-});
 
-// remove the errors
-$(document).ready(function(){
     $("input").on( "focus", function() {
         $(this).parent().children('.error').remove()
     } );
