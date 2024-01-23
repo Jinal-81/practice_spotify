@@ -46,14 +46,13 @@ class RegisterSerializer(UserSerializer):
         }
 
     def validate_password(self, attrs):
-        import pdb; pdb.set_trace()
         if attrs != self.initial_data.get('password2'):
             raise serializers.ValidationError(AuthConstantsMessages.PASSWORD_DOES_NOT_MATCH_ERROR_MESSAGE)
 
         return attrs
 
     def create(self, validated_data):
-        validated_data = validated_data.pop('password2')
+        validated_data.pop('password2')
         user = User.objects.create(**validated_data)
 
         user.set_password(validated_data['password'])
