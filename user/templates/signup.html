@@ -24,18 +24,19 @@
             ">
           <div class="card-body p-5 shadow-5 text-center">
             <h2 class="fw-bold mb-5">Sign up now</h2>
-            <form>
+            <form method="post" id="sign_form_id">
+              {% csrf_token %}
               <!-- 2 column grid layout with text inputs for the first and last names -->
               <div class="row">
                 <div class="col-md-6 mb-4">
                   <div class="form-outline">
-                    <input type="text" id="first_name_id" class="form-control" />
+                    <input type="text" id="first_name_id" name="first_nam" class="form-control" />
                     <label class="form-label" for="first_name_id">First name</label>
                   </div>
                 </div>
                 <div class="col-md-6 mb-4">
                   <div class="form-outline">
-                    <input type="text" id="last_name_id" class="form-control" />
+                    <input type="text" id="last_name_id" name="last_name" class="form-control" />
                     <label class="form-label" for="last_name_id">Last name</label>
                   </div>
                 </div>
@@ -43,13 +44,13 @@
                <div class="row">
                 <div class="col-md-6 mb-4">
                   <div class="form-outline">
-                    <input type="text" id="username_id" class="form-control" />
+                    <input type="text" id="username_id" name="username" class="form-control" />
                     <label class="form-label" for="username_id">Username</label>
                   </div>
                 </div>
                 <div class="col-md-6 mb-4">
                   <div class="form-outline">
-                    <input type="email" id="email_id" class="form-control" />
+                    <input type="email" id="email_id" name="email" class="form-control" />
                     <label class="form-label" for="email_id">Email</label>
                   </div>
                 </div>
@@ -57,18 +58,18 @@
 
               <!-- Password input -->
               <div class="form-outline mb-4">
-                <input type="password" id="password_id" class="form-control" />
+                <input type="password" id="password_id" name="password" class="form-control" />
                 <label class="form-label" for="password_id">Password</label>
               </div>
 
               <!-- Confirm Password input -->
               <div class="form-outline mb-4">
-                <input type="password" id="confirm_password_id" class="form-control" />
+                <input type="password" id="confirm_password_id" name="password2" class="form-control" />
                 <label class="form-label" for="confirm_password_id">Confirm Password</label>
               </div>
 
               <!-- Submit button -->
-              <button type="submit" class="btn btn-primary btn-block mb-4">
+              <button type="submit" class="btn btn-primary btn-block mb-4" id="sign_up_id">
                 Sign up
               </button>
 

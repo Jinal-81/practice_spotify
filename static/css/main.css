@@ -1,0 +1,7 @@
+.error{
+    color: darkred !important;
+}
+.error input {
+    border-style: solid;
+    border-color: red;
+}
