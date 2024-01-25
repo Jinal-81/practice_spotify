@@ -3,18 +3,38 @@ var urls = {
    dashboard_url: '/user/dashboard/',
    register_api_url: '/api/v1/register/',
    login_api_url: '/api/v1/login/',
+   songs_list_api_url: '/api/v1/songs_list/'
 }
-
+// ajax post call method
 function ajaxPostCallRequest(url, data, callbackSuccess=null, callbackFailure=null){
     $.ajax({
         url: url,
         method: "POST",
         cache: false,
         dataType: 'json',
-        headers: {
-            'Authorization': `Bearer ${window.localStorage.getItem('accessToken')}`
-        },
         data: data,
+        success: function (data){
+            if (callbackSuccess){
+                callbackSuccess(data);
+            }
+        },
+        error: function (jqXhr, textStatus, errorThrown){
+            if (callbackFailure){
+                callbackFailure(jqXhr, textStatus, errorThrown);
+            }
+        }
+    })
+}
+// ajax get call method
+function ajaxGetCallRequest(url, callbackSuccess=null, callbackFailure=null){
+    $.ajax({
+        url: url,
+        method: "GET",
+        cache: false,
+        dataType: 'json',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
         success: function (data){
             if (callbackSuccess){
                 callbackSuccess(data);
@@ -68,8 +88,9 @@ $(document).ready(function (){
       var current_url = window.location.origin;
       function successLoginThread(data){
            console.log(data)
-           window.localStorage.setItem('refreshToken', data['refresh']);
-           window.localStorage.setItem('accessToken', data['access']);
+//           localStorage.setItem('refreshToken', data['refresh']);
+//           localStorage.setItem('accessToken', data['access']);
+            $.cookie('access_token', data['access']);
            $.each(data.messages, function (i, m) {
                 if (m.extra_tags=='success'){
                     toastr.success(m.message)
@@ -78,7 +99,7 @@ $(document).ready(function (){
                     toastr.error(m.message)
                 }
             });
-            var token = window.localStorage.getItem('accessToken');
+            var token = localStorage.getItem('accessToken');
             var payload = JSON.parse(atob(token.split('.')[1]));
             var username = payload.username;
            window.location.href = current_url + urls.dashboard_url;
@@ -102,5 +123,35 @@ $(document).ready(function (){
 
     $("input").on( "focus", function() {
         $(this).parent().children('.error').remove()
-    } );
+        } );
+
+    if($('.songs-list')){
+      var current_url = window.location.origin;
+        function successLoginThread(data){
+           console.log(data)
+           $.cookie('access_token');
+           debugger;
+           $.each(data.results, function (i, m) {
+               $('.songs-list').innerHTML = '<b>'+i+'</b>'
+            });
+//            var token = window.localStorage.getItem('accessToken');
+//            var payload = JSON.parse(atob(token.split('.')[1]));
+//            var username = payload.username;
+//           window.location.href = current_url + urls.dashboard_url;
+//           event.preventDefault(); // avoid to execute the actual submit of the form.
+        }
+
+        function failureLoginThread(data){
+            var data_response = data.responseJSON;
+            var current_form = $('#login_form_id')[0]
+            if (data.status==400 && data.responseJSON) {
+                $.each(data_response, function( v, k ) {
+                        var field = $(current_form).find('#'+v+'_id');
+                        field.addClass('inputTxtError').before('<div class="error">'+k+'</div>');
+                });
+        }
+        }
+
+        ajaxGetCallRequest(current_url + urls.songs_list_api_url, successLoginThread, failureLoginThread)
+    }
 });

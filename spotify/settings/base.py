@@ -1,7 +1,7 @@
 """
 Django settings for spotify project.
 """
-
+import datetime
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
 
@@ -263,3 +263,9 @@ REST_FRAMEWORK = {
 }
 
 SENTRY_DSN = env.str("SENTRY_DSN", "")
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=15),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=15),
+    'ROTATE_REFRESH_TOKENS': True,
+}

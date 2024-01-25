@@ -20,7 +20,7 @@ urlpatterns = [
     path("user/", include("user.urls", namespace="user")),
     path("api/v1/", include("user.api.urls", namespace="user_api")),
     path("song/", include("songs.urls", namespace="songs")),
-    # path("api/v1/", include("songs.api.urls", namespace="songs_api")),
+    path("api/v1/", include("songs.api.urls", namespace="songs_api")),
 ]
 
 if settings.DEBUG:

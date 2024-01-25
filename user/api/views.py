@@ -1,8 +1,7 @@
 from django.contrib.auth import get_user_model
-from django.views.generic import ListView
 from rest_framework import generics
 from rest_framework.generics import ListAPIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .serializers import RegisterSerializer, MyTokenObtainPairSerializer, UserSerializer
