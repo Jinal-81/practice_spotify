@@ -183,6 +183,7 @@ WSGI_APPLICATION = "spotify.wsgi.application"
 
 INSTALLED_APPS = [
     "user.apps.UsersConfig",
+    "songs.apps.SongsConfig",
 
     
     
