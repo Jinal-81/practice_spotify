@@ -4,7 +4,6 @@ from django.core.validators import RegexValidator
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
 from user.api.constants import AuthConstantsMessages
 
 User = get_user_model()

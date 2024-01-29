@@ -3,18 +3,38 @@ var urls = {
    dashboard_url: '/user/dashboard/',
    register_api_url: '/api/v1/register/',
    login_api_url: '/api/v1/login/',
+   songs_list_api_url: '/api/v1/songs_list/'
 }
-
+// ajax post call method
 function ajaxPostCallRequest(url, data, callbackSuccess=null, callbackFailure=null){
     $.ajax({
         url: url,
         method: "POST",
         cache: false,
         dataType: 'json',
-        headers: {
-            'Authorization': `Bearer ${window.localStorage.getItem('accessToken')}`
-        },
         data: data,
+        success: function (data){
+            if (callbackSuccess){
+                callbackSuccess(data);
+            }
+        },
+        error: function (jqXhr, textStatus, errorThrown){
+            if (callbackFailure){
+                callbackFailure(jqXhr, textStatus, errorThrown);
+            }
+        }
+    })
+}
+// ajax get call method
+function ajaxGetCallRequest(url, callbackSuccess=null, callbackFailure=null){
+    $.ajax({
+        url: url,
+        method: "GET",
+        cache: false,
+        dataType: 'json',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
         success: function (data){
             if (callbackSuccess){
                 callbackSuccess(data);
@@ -67,9 +87,8 @@ $(document).ready(function (){
       event.preventDefault(); // avoid to execute the actual submit of the form.
       var current_url = window.location.origin;
       function successLoginThread(data){
-           console.log(data)
-           window.localStorage.setItem('refreshToken', data['refresh']);
-           window.localStorage.setItem('accessToken', data['access']);
+           localStorage.setItem('refreshToken', data['refresh']);
+           localStorage.setItem('accessToken', data['access']);
            $.each(data.messages, function (i, m) {
                 if (m.extra_tags=='success'){
                     toastr.success(m.message)
@@ -78,7 +97,7 @@ $(document).ready(function (){
                     toastr.error(m.message)
                 }
             });
-            var token = window.localStorage.getItem('accessToken');
+            var token = localStorage.getItem('accessToken');
             var payload = JSON.parse(atob(token.split('.')[1]));
             var username = payload.username;
            window.location.href = current_url + urls.dashboard_url;
@@ -102,5 +121,31 @@ $(document).ready(function (){
 
     $("input").on( "focus", function() {
         $(this).parent().children('.error').remove()
-    } );
+        } );
+
+    if($('.songs-list')){
+      var current_url = window.location.origin;
+        function successLoginThread(data){
+           console.log(data.results.length)
+           localStorage.getItem('accessToken')
+           $.each(data.results, function (i, m) {
+                console.log(i, m)
+                elem = "<div class='col-xs-12 col-sm-6 col-md-4' bis_skin_checked='1'><div class='image-flip' bis_skin_checked='1'><div class='mainflip flip-0' bis_skin_checked='1'><div class='frontside' bis_skin_checked='1'><div class='card' bis_skin_checked='1'><div class='card-body text-center' bis_skin_checked='1'><p><img src='http://0.0.0.0:8000/static/images/Spotify-Logo.wine.svg' alt='Girl in a jacket' width='242' height='180'></p><h4 class='card-title'></h4><p class='card-text'>"+m.title+"</p><a href='https://www.fiverr.com/share/qb8D02' class='btn btn-primary btn-sm'><i class='fa fa-plus'></i></a></div></div></div><div class='backside' bis_skin_checked='1'><div class='card' bis_skin_checked='1'><div class='card-body text-center mt-4' bis_skin_checked='1'><h4 class='card-title'></h4><p class='card-text'><img src="+m.profile_pic+" alt='Girl in a jacket' width='442' height='180'></p><p><span><i class='bi bi-hand-thumbs-up'></i></span><span><i class='bi bi-hand-thumbs-down'></i></span><span><i class='bi bi-heart'></i></span></p></div></div></div></div></div></div><h1>"+m.title+"</h1>"
+                $(".songs-list").append(elem)
+            });
+        }
+
+        function failureLoginThread(data){
+            var data_response = data.responseJSON;
+            var current_form = $('#login_form_id')[0]
+            if (data.status==400 && data.responseJSON) {
+                $.each(data_response, function( v, k ) {
+                        var field = $(current_form).find('#'+v+'_id');
+                        field.addClass('inputTxtError').before('<div class="error">'+k+'</div>');
+                });
+        }
+        }
+
+        ajaxGetCallRequest(current_url + urls.songs_list_api_url, successLoginThread, failureLoginThread)
+    }
 });
